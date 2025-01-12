@@ -1,13 +1,22 @@
 <?php
-
 require "../baseInfo.php";
 $connection = new mysqli('localhost',$dbUserName,$dbPassword,$dbName);
-
 $arrays = [
+    "CREATE TABLE  `send_list` (
+        `id` int(255) NOT NULL AUTO_INCREMENT,
+        `offset` int(255) NOT NULL DEFAULT 0,
+        `type` varchar(20) NOT NULL,
+        `text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+        `chat_id` bigint(10),
+        `message_id` int(255),
+        `file_id` varchar(500),
+        `state` int(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+        );",
     "DROP TABLE `refered_users`;",
     "DROP TABLE `server_accounts`;",
     "ALTER TABLE `server_config` DROP `cookie`;",
-    "CREATE TABLE `discounts` (
+    "CREATE TABLE `discounts`  (
         `id` int(255) NOT NULL AUTO_INCREMENT,
         `hash_id` varchar(100) NOT NULL,
         `type` varchar(10) NOT NULL,
@@ -17,7 +26,7 @@ $arrays = [
         `used_by` text DEFAULT NULL,
         PRIMARY KEY (`id`)
         );",
-    "CREATE TABLE `admins` (
+    "CREATE TABLE `admins`  (
 	  `id` int(10) NOT NULL AUTO_INCREMENT,
 	  `username` varchar(200) NOT NULL,
 	  `password` varchar(200) NOT NULL,
@@ -27,7 +36,7 @@ $arrays = [
     );",
     "INSERT INTO `admins` (`id`, `username`, `password`, `backupchannel`, `lang`) VALUES
     (1, 'admin', 'admin', '-1002545458541', 'en');",
-    "CREATE TABLE `servers` (
+    "CREATE TABLE  `servers` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `ip` varchar(200) NOT NULL,
       `port` int(10) NOT NULL,
@@ -38,13 +47,13 @@ $arrays = [
       `status` int(11) NOT NULL,
       PRIMARY KEY (`id`)
     );",
-    "CREATE TABLE `increase_day` (
+    "CREATE TABLE  `increase_day` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `volume` float NOT NULL,
         `price` int(11) NOT NULL,
         PRIMARY KEY (`id`)
         );",
-    "CREATE TABLE `increase_order` (
+    "CREATE TABLE  `increase_order`(
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `userid` varchar(30) NOT NULL,
         `server_id` int(11) NOT NULL,
@@ -54,7 +63,7 @@ $arrays = [
         `date` varchar(30) NOT NULL,
         PRIMARY KEY (`id`)
         );",
-    "CREATE TABLE `increase_plan` (
+    "CREATE TABLE  `increase_plan` (
         `id` int(255) NOT NULL AUTO_INCREMENT,
         `volume` float NOT NULL,
         `price` int(255) NOT NULL,
@@ -78,7 +87,7 @@ $arrays = [
 	"ALTER TABLE `discounts` ADD `can_use` INT(255) NOT NULL DEFAULT '1' AFTER `used_by`;",
 	"ALTER TABLE `server_plans` ADD `custom_port` INT(255) NOT NULL DEFAULT '0' AFTER `custom_path`;",
 	"ALTER TABLE `server_plans` ADD `custom_sni` VARCHAR(500) NULL AFTER `custom_port`;",
-    "CREATE TABLE `gift_list` (
+    "CREATE TABLE  `gift_list` (
         `id` int(255) NOT NULL AUTO_INCREMENT,
         `server_id` int(255) NOT NULL,
         `volume` int(255) NOT NULL,
@@ -96,14 +105,22 @@ $arrays = [
     "ALTER TABLE `users` ADD `spam_info` VARCHAR(500) NULL AFTER `agent_date`;",
     "ALTER TABLE `server_info` CHANGE `title` `title` VARCHAR(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL;",
     "UPDATE `orders_list` SET `status` = 1",
-    "ALTER TABLE `orders_list` ADD `uuid` VARCHAR(100) NULL AFTER `remark`;",
+    "ALTER TABLE `orders_list` ADD `uuid` VARCHAR(1000) NULL AFTER `remark`;",
     "ALTER TABLE `pays` ADD `tron_price` DOUBLE(255,2) NOT NULL DEFAULT '0' AFTER `price`;",
     "ALTER TABLE `gift_list` CHANGE `id` `id` INT(255) NOT NULL AUTO_INCREMENT;",
     "ALTER TABLE `users` CHANGE `discount_percent` `discount_percent` VARCHAR(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL;",
-    "UPDATE `users` SET discount_percent = IF(discount_percent = 0, NULL, CONCAT('{\"normal\": ', discount_percent, '}')) WHERE discount_percent REGEXP '^[0-9]+$';"
+    "UPDATE `users` SET discount_percent = IF(discount_percent = 0, NULL, CONCAT('{\"normal\": ', discount_percent, '}')) WHERE discount_percent REGEXP '^[0-9]+$';",
+    "ALTER TABLE `server_plans` CHANGE `flow` `flow` VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_persian_ci NULL DEFAULT 'None';",
+    "CREATE TABLE `black_list` (
+      `id` int(255) NOT NULL AUTO_INCREMENT,
+      `info` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+      PRIMARY KEY (`id`)
+      );",
+    "ALTER TABLE `orders_list` CHANGE `token` `token` VARCHAR(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_persian_ci NOT NULL;",
+    "ALTER TABLE `orders_list` CHANGE `uuid` `uuid` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_persian_ci NULL DEFAULT NULL;",
+    "ALTER TABLE `pays` ADD `message_id` INT NULL DEFAULT NULL AFTER `agent_count`;",
+    "ALTER TABLE `pays` ADD `chat_id` VARCHAR(500) NULL DEFAULT NULL AFTER `message_id`;",
     ];
-
-
 function updateBot(){
     global $arrays, $connection, $walletwizwiz, $nowPaymentKey, $zarinpalId;
     
@@ -111,7 +128,7 @@ function updateBot(){
         try{
             $connection->query($query);
         }catch (exception $error){
-            
+
         }
     }
     
@@ -204,6 +221,7 @@ function updateBot(){
     }
     
     
-
+    if(file_exists(getcwd() . '/tempCookie.txt')) unlink('../tempCookie.txt');
+    if(file_exists(getcwd() . '/settings/messagewizwiz.json')) unlink('../settings/messagewizwiz.json');
 }
 ?>

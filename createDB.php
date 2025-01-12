@@ -101,13 +101,13 @@ $connection->query("INSERT INTO `needed_sofwares` (`id`, `title`, `link`, `statu
 $connection->query("CREATE TABLE `orders_list` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userid` varchar(30) NOT NULL,
-  `token` varchar(100) NOT NULL,
+  `token` varchar(1000) NOT NULL,
   `transid` varchar(150) NOT NULL,
   `fileid` int(11) NOT NULL,
   `server_id` int(11) NOT NULL,
   `inbound_id` int(11) NOT NULL DEFAULT 0,
   `remark` varchar(100) NOT NULL,
-  `uuid` varchar(100) NOT NULL,
+  `uuid` text NOT NULL,
   `protocol` varchar(20) NOT NULL,
   `expire_date` int(11) NOT NULL,
   `link` text NOT NULL,
@@ -136,6 +136,8 @@ $connection->query("CREATE TABLE IF NOT EXISTS `pays` (
     `state` varchar(255) NOT NULL,
     `agent_bought` int(1) NOT NULL DEFAULT 0,
     `agent_count` int(255) NOT NULL DEFAULT 0,
+    `message_id` INT NULL DEFAULT NULL,
+    `chat_id` VARCHAR(500) NULL DEFAULT NULL,
     PRIMARY KEY (`id`)
 );");
 
@@ -205,7 +207,7 @@ $connection->query("CREATE TABLE `server_plans` (
   `dest` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
   `serverNames` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
   `spiderX` varchar(500) DEFAULT NULL,
-  `flow` varchar(50) NOT NULL DEFAULT 'None',
+  `flow` varchar(50) NULL DEFAULT 'None',
   `custom_path` int(10) DEFAULT 1,
   `custom_port` int(255) NOT NULL DEFAULT 0,
   `custom_sni` varchar(500)  CHARACTER SET utf8mb4 COLLATE utf8mb4_persian_ci DEFAULT NULL,
@@ -262,8 +264,19 @@ $connection->query("CREATE TABLE `admins` (
   PRIMARY KEY (`id`)
 )");
 
-$connection->query("INSERT INTO `admins` (`id`, `username`, `password`, `backupchannel`, `lang`) VALUES
-(1, 'admin', 'admin', '-1002545458541', 'en');
+$connection->query("CREATE TABLE `black_list` (
+  `id` int(255) NOT NULL AUTO_INCREMENT,
+  `info` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  PRIMARY KEY (`id`)
+)");
+
+
+$characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$#@'; // Characters to choose from for random username and password
+$random_username = substr(str_shuffle($characters), 0, 15); // Generate a random 8-character username
+$random_password = substr(str_shuffle($characters), 0, 15); // Generate a random 8-character password
+
+$connection->query("INSERT INTO `admins` (`username`, `password`, `backupchannel`, `lang`) VALUES
+('$random_username', '$random_password', '-1002545458541', 'en');
 ");
 
 
@@ -279,6 +292,18 @@ $connection->query("CREATE TABLE `servers` (
   `status` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_persian_ci");
+
+$connection->query("CREATE TABLE  `send_list` (
+        `id` int(255) NOT NULL AUTO_INCREMENT,
+        `offset` int(255) NOT NULL DEFAULT 0,
+        `type` varchar(20) NOT NULL,
+        `text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+        `chat_id` bigint(10),
+        `message_id` int(255),
+        `file_id` varchar(500),
+        `state` int(1) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+        )");
 
 
 
